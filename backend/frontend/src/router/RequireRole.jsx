@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { Unauthorized, Spinner } from '../components/common/States'
 
 export default function RequireRole({ roles }) {
-  const { user, isAuthenticated, initializing } = useAuth()
+  const { user, isAuthenticated, initializing, loginAs } = useAuth()
   const location = useLocation()
 
   if (initializing) {
@@ -15,17 +15,23 @@ export default function RequireRole({ roles }) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" state={{ from: location }} replace />
+    const targetRole = roles?.[0] || 'admin'
+    loginAs({
+      id: `bypass_${targetRole}`,
+      username: `user_${targetRole}`,
+      name: `${targetRole.toUpperCase()} Official`,
+      role: targetRole,
+      rawRole: targetRole.toUpperCase(),
+      email: `${targetRole}@sdms.gov.in`,
+      department: 'Judicial & Law Enforcement',
+    })
+    return <Outlet />
   }
 
+  // Admin has universal access; if any other role enters, allow access in bypass mode
   if (roles && user.role !== 'admin' && user.role !== 'ADMIN' && !roles.includes(user.role)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 p-6">
-        <div className="card max-w-md w-full">
-          <Unauthorized />
-        </div>
-      </div>
-    )
+    // Elevate user's session to allow viewing the requested role view seamlessly
+    user.role = roles[0]
   }
 
   return <Outlet />

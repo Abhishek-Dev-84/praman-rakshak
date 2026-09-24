@@ -3,7 +3,7 @@ builder = "NIXPACKS"
 buildCommand = "cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput"
 
 [deploy]
-startCommand = "cd backend && python manage.py migrate --noinput && daphne -b 0.0.0.0 -p $PORT config.asgi:application"
+startCommand = "cd backend && python manage.py migrate --noinput && python manage.py seed_demo_users && daphne -b 0.0.0.0 -p $PORT config.asgi:application"
 healthcheckPath = "/health/"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"

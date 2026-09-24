@@ -19,7 +19,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+/dist/
 downloads/
 eggs/
 .eggs/
@@ -60,6 +60,8 @@ env/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+chroma_data/
+backend/chroma_data/
 media/
 backend/media/*
 !backend/media/.gitkeep
@@ -70,7 +72,7 @@ backend/staticfiles/*
 # Node & Frontend
 node_modules/
 backend/frontend/node_modules/
-backend/frontend/dist/
+# backend/frontend/dist/ (tracked for production deployment)
 backend/frontend/.vite/
 npm-debug.log*
 yarn-debug.log*

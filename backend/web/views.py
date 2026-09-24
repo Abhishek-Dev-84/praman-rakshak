@@ -231,20 +231,21 @@ def web_search(request):
 
 def react_spa_view(request, *args, **kwargs):
     """
-    Optional fallback: Serves the React Single Page Application (SPA) index.html
-    if built and accessed via /app/.
+    Serves the React Single Page Application (SPA) index.html
+    for all frontend web routes.
     """
     dist_dir = Path(settings.BASE_DIR) / 'frontend' / 'dist'
     index_file = dist_dir / 'index.html'
 
     if not index_file.exists():
-        return HttpResponse(
-            """
-            <h2>React build not found.</h2>
-            <p>Please access the Django Templates frontend at <a href="/dashboard/">/dashboard/</a>.</p>
-            """,
-            status=404
-        )
+        static_index = Path(settings.STATIC_ROOT) / 'index.html'
+        if static_index.exists():
+            index_file = static_index
+        else:
+            return HttpResponse(
+                "<h2>React frontend build not found. Please build frontend/dist.</h2>",
+                status=404
+            )
 
     with open(index_file, 'r', encoding='utf-8') as f:
         content = f.read()

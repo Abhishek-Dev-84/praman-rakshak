@@ -88,7 +88,8 @@ def web_dashboard(request):
         ).distinct().order_by('-created_at')
 
     # Behavioral / Access anomalies alert check
-    flagged_anomalies = AuditLog.objects.filter(anomaly_score__gt=0.7).exists()
+    from audit.models import AccessLog
+    flagged_anomalies = AccessLog.objects.filter(Q(flagged=True) | Q(anomaly_score__gt=0.7)).exists()
 
     return render(request, 'dashboard.html', {
         'cases': cases,

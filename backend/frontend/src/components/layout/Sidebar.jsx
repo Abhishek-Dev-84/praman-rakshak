@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router-dom'
-import { Scale, X } from 'lucide-react'
+import { Scale, X, LogOut } from 'lucide-react'
 import { ROLE_THEME } from '../../utils/constants'
 import { useUI } from '../../context/UIContext'
+import { useAuth } from '../../context/AuthContext'
 
 export default function Sidebar({ role, navItems, brandLabel = 'SecureDocs' }) {
   const theme = ROLE_THEME[role]
   const { sidebarOpen, setSidebarOpen } = useUI()
+  const { logout } = useAuth()
 
   const content = (
     <div className={`h-full flex flex-col ${theme.sidebarBg} text-white w-64 shrink-0`}>
@@ -43,11 +45,21 @@ export default function Sidebar({ role, navItems, brandLabel = 'SecureDocs' }) {
         ))}
       </nav>
 
-      <div className="px-5 py-4 border-t border-white/10">
-        <div className="flex items-center gap-2 text-white/40 text-[10px]">
-          <span>Government of India</span>
+      <div className="px-3 py-3 border-t border-white/10 space-y-2">
+        <button
+          onClick={() => {
+            setSidebarOpen(false)
+            logout()
+          }}
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-300 hover:bg-white/10 transition-colors"
+        >
+          <LogOut size={17} />
+          <span>Log Out</span>
+        </button>
+        <div className="px-2">
+          <p className="text-white/40 text-[10px]">Government of India</p>
+          <p className="text-white/30 text-[10px]">Restricted Access · Ministry of Home Affairs</p>
         </div>
-        <p className="text-white/30 text-[10px] mt-0.5">Restricted Access · Ministry of Home Affairs</p>
       </div>
     </div>
   )

@@ -25,7 +25,10 @@ export function AuthProvider({ children }) {
     setInitializing(false)
   }, [])
 
+  const LOGGED_OUT_KEY = 'securedocs.logged_out'
+
   const login = async (userId, password) => {
+    sessionStorage.removeItem(LOGGED_OUT_KEY)
     try {
       const { user: loggedInUser, token } = await loginRequest(userId, password)
       const normalizedRole = normalizeRole(loggedInUser.role)
@@ -57,6 +60,7 @@ export function AuthProvider({ children }) {
   }
 
   const loginAs = (mockUser) => {
+    sessionStorage.removeItem(LOGGED_OUT_KEY)
     const normalizedRole = normalizeRole(mockUser.role)
     const session = {
       ...mockUser,
@@ -70,7 +74,9 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     sessionStorage.removeItem(STORAGE_KEY)
+    sessionStorage.setItem(LOGGED_OUT_KEY, 'true')
     setUser(null)
+    window.location.href = '/'
   }
 
   const value = useMemo(

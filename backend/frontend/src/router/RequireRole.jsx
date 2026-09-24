@@ -15,6 +15,9 @@ export default function RequireRole({ roles }) {
   }
 
   if (!isAuthenticated) {
+    if (sessionStorage.getItem('securedocs.logged_out') === 'true') {
+      return <Navigate to="/" state={{ from: location }} replace />
+    }
     const targetRole = roles?.[0] || 'admin'
     loginAs({
       id: `bypass_${targetRole}`,

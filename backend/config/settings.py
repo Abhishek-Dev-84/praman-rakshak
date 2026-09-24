@@ -82,6 +82,8 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 DATABASE_URL = os.getenv('DATABASE_URL')
+DB_NAME = os.getenv('DB_NAME')
+
 if DATABASE_URL:
     import dj_database_url
     DATABASES = {
@@ -91,8 +93,8 @@ if DATABASE_URL:
             conn_health_checks=True,
         )
     }
-else:
-    DB_NAME = os.getenv('DB_NAME', 'sdms_db')
+elif DB_NAME:
+    # Explicitly configured for PostgreSQL (e.g. local development with PostgreSQL)
     DB_USER = os.getenv('DB_USER', 'postgres')
     DB_PASSWORD = os.getenv('DB_PASSWORD', '1234')
     DB_HOST = os.getenv('DB_HOST', 'localhost')
@@ -106,6 +108,14 @@ else:
             'PASSWORD': DB_PASSWORD,
             'HOST': DB_HOST,
             'PORT': DB_PORT,
+        }
+    }
+else:
+    # Standalone single-service deployment (Railway / zero external DB required)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
@@ -137,14 +147,15 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# React Frontend Assets
-FRONTEND_DIST_DIR = BASE_DIR / 'frontend' / 'dist'
-STATIC_URL = '/assets/'
-STATICFILES_DIRS = [
-    FRONTEND_DIST_DIR / 'assets',
-    FRONTEND_DIST_DIR,
-]
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_DIRS = []
+FRONTEND_DIST_DIR = BASE_DIR / 'frontend' / 'dist'
+if (FRONTEND_DIST_DIR / 'assets').exists():
+    STATICFILES_DIRS.append(FRONTEND_DIST_DIR / 'assets')
+if FRONTEND_DIST_DIR.exists():
+    STATICFILES_DIRS.append(FRONTEND_DIST_DIR)
 
 # Media Files (User uploads)
 MEDIA_URL = '/media/'
@@ -189,7 +200,14 @@ CSRF_TRUSTED_ORIGINS = [
     'http://172.29.28.53:8000',
     'http://172.29.26.4:8000',
     'http://192.168.56.1:8000',
+    'https://*.railway.app',
+    'https://*.up.railway.app',
 ]
 csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS')
 if csrf_origins_env:
     CSRF_TRUSTED_ORIGINS.extend([orig.strip() for orig in csrf_origins_env.split(',') if orig.strip()])
+
+# Production SSL & Reverse Proxy Security Settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG

@@ -1,0 +1,26 @@
+# Git and IDE
+.git
+.gitignore
+.agents
+.idea
+.vscode
+
+# Mobile application (separate repo/client)
+mobile/
+
+# Frontend development dependencies (dist is already built and served)
+backend/frontend/node_modules/
+backend/frontend/.vite/
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv/
+venv/
+ENV/
+
+# Local data & media
+backend/chroma_data/
+backend/media/

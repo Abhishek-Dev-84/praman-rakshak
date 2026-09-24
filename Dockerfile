@@ -1,9 +1,7 @@
 FROM python:3.11-slim
 
-# System dependencies for PDF/image processing and PostgreSQL client (if used)
+# System dependencies for PDF/image processing
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
     tesseract-ocr \
     poppler-utils \
     curl \

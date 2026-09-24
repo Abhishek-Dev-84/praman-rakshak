@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Digital Document Management System (SDMS)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+    {% if user.is_authenticated %}
+    <nav class="bg-blue-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <span class="font-bold text-xl tracking-wider">SDMS // MHA</span>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="{% url 'web_dashboard' %}" class="hover:bg-blue-800 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="{% url 'web_search' %}" class="hover:bg-blue-800 px-3 py-2 rounded-md text-sm font-medium">Semantic Search</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm font-semibold">{{ user.username }}</p>
+                        <p class="text-xs text-blue-300">{{ user.role }}</p>
+                    </div>
+                    <a href="{% url 'web_logout' %}" class="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-md text-sm font-medium transition duration-150">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-gray-800 text-gray-400 text-center py-4 border-t border-gray-700 text-xs">
+        <p>Secure Digital Document Management System (SDMS) — SIH 2026. Authorized personnel only.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-8 max-w-4xl mx-auto">
+    <div>
+        <h1 class="text-3xl font-extrabold text-gray-900">AI Semantic Search</h1>
+        <p class="text-sm text-gray-500 mt-1">Search the secure evidence base using natural language questions</p>
+    </div>
+
+    <!-- Search Form -->
+    <form method="GET" action="{% url 'web_search' %}" class="flex gap-3">
+        <input type="text" name="q" value="{{ query }}" placeholder="Ask a question about the case (e.g. 'what did witness Ramesh observe?')" class="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-4 border text-lg">
+        <button type="submit" class="bg-blue-900 hover:bg-blue-800 text-white font-bold px-8 rounded-lg shadow-md transition duration-150 text-lg">Search</button>
+    </form>
+
+    {% if query %}
+    <div class="space-y-6">
+        <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-900 space-y-4">
+            <h2 class="text-xl font-bold text-blue-900">AI Answer</h2>
+            <p class="text-gray-800 leading-relaxed text-lg">{{ results.answer }}</p>
+        </div>
+
+        <div class="space-y-3">
+            <h3 class="text-lg font-bold text-gray-900">Cited Sources</h3>
+            <div class="space-y-3">
+                {% for src in results.sources %}
+                <div class="bg-white p-4 rounded-lg border shadow-sm space-y-2">
+                    <div class="flex justify-between items-center">
+                        <a href="{% url 'web_document_detail' src.document_id %}" class="font-bold text-blue-900 hover:underline">{{ src.title }}</a>
+                        <span class="px-2 py-0.5 bg-gray-100 text-gray-800 rounded text-xs font-semibold">Relevance: {{ src.relevance_score|floatformat:2 }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 bg-gray-50 p-2.5 rounded font-serif italic">"...{{ src.snippet }}..."</p>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-sm">No source documents referenced for this query.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

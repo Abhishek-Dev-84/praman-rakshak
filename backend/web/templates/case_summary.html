@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-8">
+    <div class="flex items-center space-x-2">
+        <a href="{% url 'web_case_detail' case.id %}" class="text-blue-900 hover:underline text-sm font-semibold">&larr; Back to Case Details</a>
+    </div>
+    
+    <div>
+        <h1 class="text-3xl font-extrabold text-gray-900">AI Case Summary</h1>
+        <p class="text-sm text-gray-500 mt-1">Generated dynamically from all active files in Case <span class="font-bold text-gray-800">{{ case.case_number }}</span></p>
+    </div>
+
+    <!-- Case Overview -->
+    <div class="bg-white p-6 rounded-lg shadow border">
+        <h2 class="text-xl font-bold text-blue-900 mb-3">Case Overview</h2>
+        <p class="text-gray-700 leading-relaxed text-lg">{{ summary.case_overview }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Timeline and Breakdown -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Timeline -->
+            <div class="bg-white p-6 rounded-lg shadow border space-y-6">
+                <h2 class="text-xl font-bold text-gray-900">Chronological Case Timeline</h2>
+                <div class="flow-root">
+                    <ul class="-mb-8">
+                        {% for event in summary.timeline %}
+                        <li>
+                            <div class="relative pb-8">
+                                {% if not forloop.last %}
+                                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                {% endif %}
+                                <div class="relative flex space-x-3">
+                                    <div>
+                                        <span class="h-8 w-8 rounded-full bg-blue-900 flex items-center justify-center ring-8 ring-white">
+                                            <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-900">{{ event.event }}</p>
+                                            {% if event.source_document_id %}
+                                            <p class="text-xs text-blue-950 mt-1">Source Document: {{ event.source_document_id }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-right text-sm whitespace-nowrap text-gray-500 font-semibold">
+                                            <time>{{ event.date }}</time>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <p class="text-gray-500 text-sm">No timeline events extracted.</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Document Breakdown -->
+            <div class="bg-white p-6 rounded-lg shadow border space-y-4">
+                <h2 class="text-xl font-bold text-gray-900">Analyzed Document Breakdown</h2>
+                <div class="space-y-4">
+                    {% for doc in summary.document_breakdown %}
+                    <div class="border-l-4 border-blue-900 pl-4 py-1">
+                        <h4 class="font-bold text-gray-900">{{ doc.title }}</h4>
+                        <p class="text-xs text-gray-500 font-semibold mt-0.5">Type: {{ doc.type }}</p>
+                        <p class="text-sm text-gray-700 mt-1.5">{{ doc.one_line_summary }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Entities & Flags -->
+        <div class="space-y-8">
+            <!-- Entities -->
+            <div class="bg-white p-6 rounded-lg shadow border space-y-4">
+                <h2 class="text-xl font-bold text-gray-900 font-sans">Identified Entities</h2>
+                
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">People</h4>
+                    <div class="flex flex-wrap gap-1.5">
+                        {% for person in summary.key_entities.people %}
+                        <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded">{{ person }}</span>
+                        {% empty %}
+                        <span class="text-gray-400 text-sm">None</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">Locations</h4>
+                    <div class="flex flex-wrap gap-1.5">
+                        {% for loc in summary.key_entities.locations %}
+                        <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded">{{ loc }}</span>
+                        {% empty %}
+                        <span class="text-gray-400 text-sm">None</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Open Flags -->
+            {% if summary.open_flags %}
+            <div class="bg-red-50 p-6 rounded-lg shadow border border-red-200 space-y-3">
+                <h2 class="text-xl font-bold text-red-900 flex items-center space-x-2">
+                    <svg class="h-5 w-5 text-red-700" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Unresolved Flags</span>
+                </h2>
+                <ul class="list-disc pl-5 text-sm text-red-800 space-y-1.5">
+                    {% for flag in summary.open_flags %}
+                    <li>{{ flag }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

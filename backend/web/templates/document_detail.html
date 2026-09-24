@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-8">
+    <div class="flex items-center space-x-2">
+        <a href="{% url 'web_case_detail' document.case.id %}" class="text-blue-900 hover:underline text-sm font-semibold">&larr; Back to Case Details</a>
+    </div>
+
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900">{{ document.title }}</h1>
+            <p class="text-sm text-gray-500 mt-1">Status: 
+                <span class="px-2 py-0.5 rounded text-xs font-semibold {% if document.status == 'ACTIVE' %}bg-green-100 text-green-800{% elif document.status == 'PROCESSING' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ document.status }}
+                </span>
+            </p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{% url 'web_audit_trail' document.id %}" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 px-5 rounded-lg shadow transition duration-150 flex items-center space-x-2">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <span>View Integrity Chain</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Verification Banner -->
+    <div class="p-5 rounded-lg shadow-sm border flex items-center justify-between {% if verification.valid %}bg-green-50 border-green-200 text-green-800{% else %}bg-red-50 border-red-200 text-red-800{% endif %}">
+        <div class="flex items-center space-x-3">
+            {% if verification.valid %}
+            <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <h4 class="font-bold text-lg">Hash Chain Verified Intact</h4>
+                <p class="text-sm">This document has not been altered or tampered with since creation.</p>
+            </div>
+            {% else %}
+            <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div>
+                <h4 class="font-bold text-lg">Integrity Check Failed!</h4>
+                <p class="text-sm">Tampering detected at: {{ verification.broken_at.log_id }} (Reason: {{ verification.reason }}).</p>
+            </div>
+            {% endif %}
+        </div>
+        <span class="text-sm font-mono font-bold">{{ document.document_hash|slice:":12" }}...</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- PII Flags Section -->
+        <div class="lg:col-span-2 space-y-4">
+            <h2 class="text-2xl font-bold text-gray-900">PII & Sensitive Entities Flagged</h2>
+            <div class="bg-white p-6 rounded-lg border shadow-sm space-y-4">
+                {% for flag in pii_flags %}
+                <div class="flex items-center justify-between border-b pb-3 last:border-b-0 last:pb-0">
+                    <div class="space-y-1">
+                        <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">{{ flag.entity_type }}</span>
+                        <p class="font-mono text-gray-900 font-bold mt-1 text-sm bg-gray-50 p-1.5 rounded">{{ flag.text_snippet }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-400">Offsets: {{ flag.start_offset }} - {{ flag.end_offset }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-sm">No PII flags detected in this document.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Latest Logs Section -->
+        <div class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-900">Recent Audit Entries</h2>
+            <div class="bg-white p-6 rounded-lg border shadow-sm space-y-4">
+                {% for log in latest_logs %}
+                <div class="border-b pb-3 last:border-b-0 last:pb-0 text-sm space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-gray-900">{{ log.action }}</span>
+                        <span class="text-xs text-gray-400">{{ log.timestamp|date:"m-d H:i" }}</span>
+                    </div>
+                    <p class="text-xs text-gray-500">By {{ log.user.username }} ({{ log.user.role }})</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

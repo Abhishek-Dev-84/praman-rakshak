@@ -1,0 +1,10 @@
+0fed2366116ÅbGÇ=Msysdb00005-remove-topic.sqlite.sql-- Remove the topic column from the Collections and Segments tables
+
+ALTER TABLE collections DROP COLUMN topic;
+ALTER TABLE segments DROP COLUMN topic;
+b1367c826b8fba5f96f27befdc1d42d2äQì%Msysdb00004-tenants-databases.sqlite.sqlCREATE TABLE IF NOT EXISTS tenants (
+    id TEXT PRIMARY KEY,
+    UNIQUE (id)
+);
+
+CREATE TABLE IF NOT EXISTS d

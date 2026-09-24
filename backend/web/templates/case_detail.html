@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-8">
+    <div class="flex justify-between items-start">
+        <div>
+            <div class="flex items-center space-x-2">
+                <a href="{% url 'web_dashboard' %}" class="text-blue-900 hover:underline text-sm font-semibold">&larr; Back to Dashboard</a>
+            </div>
+            <h1 class="text-3xl font-extrabold text-gray-900 mt-2">{{ case.title }}</h1>
+            <p class="text-sm text-gray-500 mt-1">FIR / Case Number: <span class="font-bold text-gray-800">{{ case.case_number }}</span></p>
+        </div>
+        <a href="{% url 'web_case_summary' case.id %}" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 px-5 rounded-lg shadow transition duration-150 flex items-center space-x-2">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span>View Case Summary</span>
+        </a>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow border">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Case Description</h2>
+        <p class="text-gray-700 leading-relaxed">{{ case.description|default:"No description provided." }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Documents Section -->
+        <div class="lg:col-span-2 space-y-4">
+            <h2 class="text-2xl font-bold text-gray-900">Case Documents</h2>
+            <div class="bg-white shadow overflow-hidden sm:rounded-md border">
+                <ul class="divide-y divide-gray-200">
+                    {% for doc in documents %}
+                    <li class="px-6 py-4 hover:bg-gray-50 flex justify-between items-center transition duration-150">
+                        <div class="space-y-1">
+                            <a href="{% url 'web_document_detail' doc.id %}" class="text-lg font-bold text-blue-900 hover:underline">{{ doc.title }}</a>
+                            <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                <span>Uploaded by {{ doc.uploaded_by.username }}</span>
+                                <span>&bull;</span>
+                                <span>{{ doc.created_at|date:"Y-m-d H:i" }}</span>
+                                <span>&bull;</span>
+                                <span class="bg-gray-100 text-gray-800 px-2 py-0.5 rounded font-mono">{{ doc.category|default:"UNCLASSIFIED" }}</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'web_document_detail' doc.id %}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded text-sm font-semibold transition duration-150">Open File</a>
+                    </li>
+                    {% empty %}
+                    <li class="px-6 py-8 text-center text-gray-500">
+                        No documents uploaded for this case.
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Assigned Users Section -->
+        <div class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-900">Assigned Personnel</h2>
+            <div class="bg-white p-6 rounded-lg shadow border space-y-4">
+                {% for assign in assignments %}
+                <div class="flex items-center justify-between border-b pb-3 last:border-b-0 last:pb-0">
+                    <div>
+                        <p class="font-bold text-gray-900">{{ assign.user.username }}</p>
+                        <p class="text-xs text-gray-500">{{ assign.user.role }}</p>
+                    </div>
+                    <span class="px-2 py-1 bg-blue-50 text-blue-800 rounded text-xs font-semibold">{{ assign.assigned_role }}</span>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-sm">No personnel assigned to this case.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
